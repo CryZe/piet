@@ -9,6 +9,7 @@
 use std::ffi::c_void;
 use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
+use std::mem::MaybeUninit;
 use std::ops::Deref;
 use std::ptr::{null, null_mut};
 
@@ -35,12 +36,7 @@ use winapi::um::d2d1::{
     D2D1_QUADRATIC_BEZIER_SEGMENT, D2D1_RADIAL_GRADIENT_BRUSH_PROPERTIES, D2D1_RECT_F, D2D1_RECT_U,
     D2D1_SIZE_F, D2D1_SIZE_U, D2D1_STROKE_STYLE_PROPERTIES,
 };
-use winapi::um::d2d1_1::{
-    ID2D1Bitmap1, ID2D1Device, ID2D1DeviceContext, ID2D1Effect, ID2D1Factory1,
-    D2D1_BITMAP_OPTIONS_NONE, D2D1_BITMAP_OPTIONS_TARGET, D2D1_BITMAP_PROPERTIES1,
-    D2D1_COMPOSITE_MODE, D2D1_DEVICE_CONTEXT_OPTIONS_NONE, D2D1_INTERPOLATION_MODE,
-    D2D1_PROPERTY_TYPE_FLOAT,
-};
+use winapi::um::d2d1_1::{D2D1_BITMAP_OPTIONS_NONE, D2D1_BITMAP_OPTIONS_TARGET, D2D1_BITMAP_PROPERTIES1, D2D1_COMPOSITE_MODE, D2D1_DEVICE_CONTEXT_OPTIONS_NONE, D2D1_INTERPOLATION_MODE, D2D1_MAP_OPTIONS_WRITE, D2D1_PROPERTY_TYPE_FLOAT, ID2D1Bitmap1, ID2D1Device, ID2D1DeviceContext, ID2D1Effect, ID2D1Factory1};
 use winapi::um::d2d1_1::{D2D1_PRIMITIVE_BLEND_COPY, D2D1_PRIMITIVE_BLEND_SOURCE_OVER};
 use winapi::um::d2d1effects::{CLSID_D2D1GaussianBlur, D2D1_GAUSSIANBLUR_PROP_STANDARD_DEVIATION};
 use winapi::um::dcommon::{D2D1_ALPHA_MODE, D2D1_ALPHA_MODE_PREMULTIPLIED, D2D1_PIXEL_FORMAT};
@@ -941,6 +937,18 @@ impl DeviceContext {
                 self.0
                     .CreateCompatibleRenderTarget(&size_f, null(), &format, options, &mut ptr);
             wrap(hr, ptr, BitmapRenderTarget)
+        }
+    }
+
+    pub(crate) fn update_bitmap(&self, image: &mut Bitmap, buf: &[u8]) -> Result<(), Error> {
+        unsafe {
+            let format = image.inner.GetPixelFormat();
+            let size = image.inner.GetPixelSize();
+            assert_eq!(format.format, DXGI_FORMAT_R8G8B8A8_UNORM);
+            let pitch = 4 * size.width;
+            assert_eq!((pitch * size.height) as usize, buf.len());
+            let hr = image.inner.CopyFromMemory(null(), buf.as_ptr().cast(), pitch);
+            wrap_unit(hr)
         }
     }
 }

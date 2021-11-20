@@ -111,6 +111,14 @@ impl RenderContext for NullRenderContext {
         Ok(NullImage)
     }
 
+    fn update_image(
+        &mut self,
+        _image: &mut Self::Image,
+        _buf: &[u8],
+    ) -> Result<(), Error> {
+        Ok(())
+    }
+
     fn draw_image(
         &mut self,
         _image: &Self::Image,

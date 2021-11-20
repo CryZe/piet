@@ -426,6 +426,15 @@ impl<'a> RenderContext for D2DRenderContext<'a> {
         Ok(bitmap)
     }
 
+    fn update_image(
+        &mut self,
+        image: &mut Self::Image,
+        buf: &[u8],
+    ) -> Result<(), Error> {
+        self.rt.update_bitmap(image, buf)?;
+        Ok(())
+    }
+
     #[inline]
     fn draw_image(
         &mut self,

@@ -227,6 +227,12 @@ where
         format: ImageFormat,
     ) -> Result<Self::Image, Error>;
 
+    fn update_image(
+        &mut self,
+        image: &mut Self::Image,
+        buf: &[u8],
+    ) -> Result<(), Error>;
+
     /// Draw an [`Image`] into the provided [`Rect`].
     ///
     /// The image is scaled to fit the provided [`Rect`]; it will be squashed
