@@ -3,8 +3,10 @@
 // TODO: Remove all the wasm32 cfg guards once this compiles with piet-web
 
 use piet::{kurbo::Rect, Color, RenderContext};
-use piet_common::kurbo::{Point, Size};
-use piet_common::Device;
+use piet_common::{
+    kurbo::{Point, Size},
+    Device,
+};
 use rand::{prelude::*, random};
 use rand_distr::Normal;
 

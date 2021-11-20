@@ -6,11 +6,10 @@
 
 mod text;
 
-use std::borrow::Cow;
-use std::{io, mem};
+use std::{borrow::Cow, io, mem};
 
-use piet::kurbo::{Affine, Point, Rect, Shape, Size};
 use piet::{
+    kurbo::{Affine, Point, Rect, Shape, Size},
     Color, Error, FixedGradient, Image, ImageFormat, InterpolationMode, IntoBrush, LineCap,
     LineJoin, StrokeStyle,
 };
@@ -257,6 +256,10 @@ impl piet::RenderContext for RenderContext {
         _buf: &[u8],
         _format: ImageFormat,
     ) -> Result<Self::Image> {
+        Err(Error::NotSupported)
+    }
+
+    fn update_image(&mut self, image: &mut Self::Image, buf: &[u8]) -> Result<()> {
         Err(Error::NotSupported)
     }
 

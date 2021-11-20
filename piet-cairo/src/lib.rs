@@ -8,8 +8,8 @@ use std::borrow::Cow;
 
 use cairo::{Context, Filter, Format, ImageSurface, Matrix, SurfacePattern};
 
-use piet::kurbo::{Affine, PathEl, Point, QuadBez, Rect, Shape, Size};
 use piet::{
+    kurbo::{Affine, PathEl, Point, QuadBez, Rect, Shape, Size},
     Color, Error, FixedGradient, Image, ImageFormat, InterpolationMode, IntoBrush, LineCap,
     LineJoin, RenderContext, StrokeStyle,
 };
@@ -303,6 +303,19 @@ impl<'a> RenderContext for CairoRenderContext<'a> {
             }
         }
         Ok(CairoImage(image))
+    }
+
+    fn update_image(&mut self, image: &mut Self::Image, buf: &[u8]) -> Result<(), Error> {
+        let mut data = image
+            .0
+            .data()
+            .map_err(|e| Error::BackendError(Box::new(e)))?;
+
+        if data.len() != buf.len() {
+            return Err(Error::InvalidInput);
+        }
+        data.copy_from_slice(buf);
+        Ok(())
     }
 
     #[inline]
