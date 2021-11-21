@@ -6,26 +6,24 @@ mod ct_helpers;
 mod gradient;
 mod text;
 
-use std::borrow::Cow;
-use std::sync::Arc;
+use std::{borrow::Cow, sync::Arc};
 
-use core_graphics::base::{
-    kCGImageAlphaLast, kCGImageAlphaPremultipliedLast, kCGRenderingIntentDefault, CGFloat,
+use core_graphics::{
+    base::{kCGImageAlphaLast, kCGImageAlphaPremultipliedLast, kCGRenderingIntentDefault, CGFloat},
+    color_space::CGColorSpace,
+    context::{CGContextRef, CGInterpolationQuality, CGLineCap, CGLineJoin},
+    data_provider::CGDataProvider,
+    geometry::{CGAffineTransform, CGPoint, CGRect, CGSize},
+    gradient::CGGradientDrawingOptions,
+    image::CGImage,
 };
-use core_graphics::color_space::CGColorSpace;
-use core_graphics::context::{CGContextRef, CGInterpolationQuality, CGLineCap, CGLineJoin};
-use core_graphics::data_provider::CGDataProvider;
-use core_graphics::geometry::{CGAffineTransform, CGPoint, CGRect, CGSize};
-use core_graphics::gradient::CGGradientDrawingOptions;
-use core_graphics::image::CGImage;
 use foreign_types::ForeignTypeRef;
 
 use piet::kurbo::{Affine, PathEl, Point, QuadBez, Rect, Shape, Size};
 
-use piet::util::unpremul;
 use piet::{
-    Color, Error, FixedGradient, Image, ImageFormat, InterpolationMode, IntoBrush, LineCap,
-    LineJoin, RenderContext, RoundInto, StrokeStyle,
+    util::unpremul, Color, Error, FixedGradient, Image, ImageFormat, InterpolationMode, IntoBrush,
+    LineCap, LineJoin, RenderContext, RoundInto, StrokeStyle,
 };
 
 pub use crate::text::{CoreGraphicsText, CoreGraphicsTextLayout, CoreGraphicsTextLayoutBuilder};
@@ -344,6 +342,10 @@ impl<'a> RenderContext for CoreGraphicsContext<'a> {
         Ok(CoreGraphicsImage::NonEmpty(image))
     }
 
+    fn update_image(&mut self, image: &mut Self::Image, buf: &[u8]) -> Result<(), Error> {
+        Ok(())
+    }
+
     fn draw_image(
         &mut self,
         image: &Self::Image,
@@ -597,8 +599,7 @@ extern "C" {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core_graphics::color_space::CGColorSpace;
-    use core_graphics::context::CGContext;
+    use core_graphics::{color_space::CGColorSpace, context::CGContext};
 
     fn make_context(size: impl Into<Size>) -> CGContext {
         let size = size.into();
